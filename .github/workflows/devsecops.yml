@@ -29,10 +29,10 @@ jobs:
         uses: ./.github/workflows/docker-scans.yml
         secrets: inherit 
 
-    # SonarQube
-    sonar-qube:
+    # CodeQL Analysis
+    codeql-analysis:
         needs: [docker-checks]
-        uses: ./.github/workflows/sonar-scan.yml
+        uses: ./.github/workflows/codeql.yml
         secrets: inherit
 
     # Code Tests
