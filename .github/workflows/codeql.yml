@@ -3,30 +3,70 @@ name: "CodeQL Analysis"
 on:
   workflow_call:
 
+
 jobs:
   analyze:
-    name: Analyze Code
+    name: Analyze (${{ matrix.language }})
     runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      packages: read
+      actions: read
+      contents: read
 
     strategy:
       fail-fast: false
       matrix:
-        # Supported languages: 'c-cpp', 'csharp', 'go', 'java-kotlin', 'javascript-typescript', 'python', 'ruby', 'swift'
-        language: [ 'nodejs', 'golang' ]
+        include:
+          - language: javascript-typescript
+            build-mode: none
+            working-dir: frontend
+          - language: go
+            build-mode: manual
+            working-dir: backend
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v7
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    # Initializes the CodeQL tools and creates a database for the specified languages
-    - name: Initialize CodeQL
-      uses: github/codeql-action/init@v3
-      with:
-        languages: ${{ matrix.language }}
-        # 'autobuild' attempts to build compiled languages automatically. 
-        # Use 'manual' if you need to run specific build commands first.
-        build-mode: autobuild
+      # --- Node setup + cache (only runs for JS/TS matrix entry) ---
+      - name: Set up Node
+        if: matrix.language == 'javascript-typescript'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: ${{ matrix.working-dir }}/package-lock.json
 
-    # Performs the actual static analysis and uploads results to GitHub's Security tab
-    - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v3
+      - name: Install Node dependencies
+        if: matrix.language == 'javascript-typescript'
+        working-directory: ${{ matrix.working-dir }}
+        run: npm ci
+
+      # --- Go setup + cache (only runs for Go matrix entry) ---
+      - name: Set up Go
+        if: matrix.language == 'go'
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'   # match your go.mod
+          cache: true
+          cache-dependency-path: ${{ matrix.working-dir }}/go.sum
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+          # restrict scanning to the relevant subfolder
+          source-root: ${{ matrix.working-dir }}
+
+      # Manual build step for Go, scoped to backend/
+      - name: Build Go project
+        if: matrix.language == 'go'
+        working-directory: ${{ matrix.working-dir }}
+        run: go build ./...
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{ matrix.language }}"
