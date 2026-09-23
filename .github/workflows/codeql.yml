@@ -41,7 +41,7 @@ jobs:
       - name: Install Node dependencies
         if: matrix.language == 'javascript-typescript'
         working-directory: ${{ matrix.working-dir }}
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
       # --- Go setup + cache (only runs for Go matrix entry) ---
       - name: Set up Go
