@@ -33,7 +33,6 @@ jobs:
     codeql-analysis:
         needs: [docker-checks]
         uses: ./.github/workflows/codeql.yml
-        secrets: inherit
 
     # Code Tests
     #code-tests:
