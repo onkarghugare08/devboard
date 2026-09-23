@@ -40,8 +40,9 @@ jobs:
          packages: read
 
     # Code Tests
-    #code-tests:
-     #   uses: ./.github/workflows/code-tests.yml
+    code-tests:
+        needs: [codeql-analysis]
+        uses: ./.github/workflows/code-tests.yml
 
     # push-to-docker-hub:
    # docker-push:
