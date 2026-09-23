@@ -33,6 +33,11 @@ jobs:
     codeql-analysis:
         needs: [docker-checks]
         uses: ./.github/workflows/codeql.yml
+        permissions:
+         actions: read
+         contents: read
+         security-events: write
+         packages: read
 
     # Code Tests
     #code-tests:
