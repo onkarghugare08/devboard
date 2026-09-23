@@ -4,7 +4,7 @@ name: DevSecOps
 
 on:
     push:
-        branches: [master]
+        branches: [main]
 
 jobs:
 
@@ -42,12 +42,12 @@ jobs:
         secrets: inherit
 
     ## ---- CD -----
-    deploy:
-        needs: [docker-push]
-        uses: ./.github/workflows/deploy.yml
-        secrets: inherit
+   # deploy:
+       # needs: [docker-push]
+       # uses: ./.github/workflows/deploy.yml
+       # secrets: inherit
 
-    dast-scan:
-        needs: [deploy]
-        uses: ./.github/workflows/dast.yml
-        secrets: inherit
+   # dast-scan:
+     #   needs: [deploy]
+      #  uses: ./.github/workflows/dast.yml
+    #   secrets: inherit
