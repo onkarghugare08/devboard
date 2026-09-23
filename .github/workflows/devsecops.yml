@@ -15,12 +15,13 @@ jobs:
 
     # Secret Scanning
     secret-scanning:
-        needs: code-quality
+        needs: [code-quality]
         uses: ./.github/workflows/secret-scanning.yml
 
     # Dependency Checks
-   # dependency-checks:
-     #   uses: ./.github/workflows/dependency-scan.yml
+    dependency-checks:
+        needs: [secret-scanning]
+        uses: ./.github/workflows/dependency-scan.yml
 
     # Docker Checks
    # docker-checks:
